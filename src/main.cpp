@@ -86,7 +86,7 @@
 //   // delay(2000);
 //   // myservo.write(90);
 //   // delay(2000);
-  
+
 //   myservo.write(0);
 //   delay(2000);
 //   myservo.write(90);
@@ -95,26 +95,119 @@
 
 /////// Up is the code for Servo
 
-
 // ---------------------------------------------------------------------------
 // Example NewPing library sketch that does a ping about 20 times per second.
 // ---------------------------------------------------------------------------
-
+#include <ESP32Servo.h>
 #include <NewPing.h>
 
-#define TRIGGER_PIN  12  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN     11  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define TRIGGER_DISTANCE 21 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_DISTANCE 19    // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MAX_DISTANCE 400    // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+#define TRIGGER_CAPACITY 22 // For capacity sensor trigger pin
+#define ECHO_CAPACITY 23    // For capcity sensor echo pin
 
-void setup() {
-  Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
+#define SERVO_PIN 18 //
+Servo myservo;
+NewPing sonar[2] = {                                        // Sensor object array.
+    NewPing(TRIGGER_DISTANCE, ECHO_DISTANCE, MAX_DISTANCE), // NewPing setup of pins and maximum distance.
+    NewPing(TRIGGER_CAPACITY, ECHO_CAPACITY, MAX_DISTANCE)};
+
+void setup()
+{
+  // Allow allocation of all timers
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  myservo.setPeriodHertz(50);            // standard 50 hz servo
+  myservo.attach(SERVO_PIN, 1000, 2000); // attaches the servo on pin 18 to the servo object
+                                         // using default min/max of 1000us and 2000us
+                                         // different servos may require different min/max settings
+                                         // for an accurate 0 to 180 sweep
+  Serial.begin(115200);                  // Open serial monitor at 115200 baud to see ping results.
+}
+int timePased = 0;
+int global_angle = 20;
+
+//TODO - Try this in operation for servo.
+/**
+ * Performs operation (opens or closes) on lid
+ *
+ *
+ * @param desired_angle Final angle to achieve.
+ * @return `void`
+ */
+void lid_operate(int desired_angle)
+{
+  for (int current_angle = global_angle; current_angle != desired_angle;)
+  {
+    // Updates the global angle
+    // Updates the i variable
+
+    // Finds the difference in angle
+    float difference = (desired_angle - global_angle) * 0.1;
+    if (difference > 0)
+    {
+      current_angle = current_angle + 20;
+      Serial.println("current angle: " + String(current_angle));
+      myservo.write(current_angle);
+      global_angle = current_angle;
+    }
+    else
+    {
+      // Decrement is quite high because the hardware is not calibrated properly.
+      current_angle = current_angle - 20;
+      Serial.println("current angle: " + String(current_angle));
+      myservo.write(current_angle);
+      global_angle = current_angle;
+    }
+
+    delay(100);
+
+    // Apply the difference to step
+  }
 }
 
-void loop() {
-  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
-  Serial.print("Ping: ");
-  Serial.print(sonar.ping_cm()); // Send ping, get distance in cm and print result (0 = outside set distance range)
-  Serial.println("cm");
+unsigned long previousMillis = 0UL;
+unsigned long interval = 5000UL;
+
+void loop()
+{
+
+  // delay(50);
+  // Serial.println(sonar[0].ping_cm());
+  // Serial.println(sonar[1].ping_cm());
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis > interval)
+  {
+    /* The ESP32 executes this code once every second
+     *  (interval = 1000 (ms) = 1 second).
+     */
+
+    // Code for Blynk things.
+
+    // Don't forget to update the previousMillis value
+    previousMillis = currentMillis;
+  }
+
+  delay(50);
+
+  int data = sonar[1].ping_cm();
+  Serial.println(data);
+  if (data < 30 && data > 0)
+  {
+    lid_operate(180);
+    // myservo.write(180);
+    delay(1500);
+  }
+  else
+  {
+    lid_operate(20);
+    // myservo.write(20);
+    delay(200);
+  }
 }

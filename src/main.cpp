@@ -100,6 +100,7 @@
 // ---------------------------------------------------------------------------
 #include <ESP32Servo.h>
 #include <NewPing.h>
+#include <tokens.h>
 
 #define TRIGGER_DISTANCE 21 // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_DISTANCE 19    // Arduino pin tied to echo pin on the ultrasonic sensor.
@@ -131,7 +132,7 @@ void setup()
 int timePased = 0;
 int global_angle = 20;
 
-//TODO - Try this in operation for servo.
+// TODO - Try this in operation for servo.
 /**
  * Performs operation (opens or closes) on lid
  *

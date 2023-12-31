@@ -24,19 +24,28 @@ NewPing sonar[2] = {                                        // Sensor object arr
     NewPing(TRIGGER_CAPACITY, ECHO_CAPACITY, MAX_DISTANCE)};
 
 
-// Converter from distance to percentage.
-float converter(int data, int container_height)
+/**
+ * Converter from distance to percentage of the max height given.
+ * Made for the Blynk percentage handling.
+ *
+ * @param data data to go through conversion.
+ * @param container_height height of the container.
+ * @return double
+ */
+double
+converter(int data, int container_height)
 {
-  float converted = data * (1.0 / container_height);
+  double converted = fabs(data * -(1.0 / container_height));
   return converted;
 }
 
+// Handles the data stream update to blynk
 void updateDatastreamV0()
 {
-  int data_2 = (int) sonar[0].ping_cm();
-
-  Serial.println(converter(data_2,30));
-  // Blynk.virtualWrite(V0, );
+  int data_2 = (int)sonar[0].ping_cm();
+  double percentage = converter(data_2, 30);
+  Serial.println();
+  Blynk.virtualWrite(V0, percentage);
 }
 void setup()
 {

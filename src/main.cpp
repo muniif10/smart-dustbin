@@ -3,9 +3,7 @@
 #include <NewPing.h>
 #include <tokens.h>
 
-#define BLYNK_TEMPLATE_ID "TMPL6xP4JcVox"
-#define BLYNK_TEMPLATE_NAME "Smart Dustbin"
-#define BLYNK_AUTH_TOKEN "8zHmJ1WsM5pvc9UC16xBV3g3a6ZJQwk3"
+
 
 #include <BlynkSimpleEsp32.h>
 

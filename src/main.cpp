@@ -2,9 +2,6 @@
 #include <ESP32Servo.h>
 #include <NewPing.h>
 #include <tokens.h>
-
-
-
 #include <BlynkSimpleEsp32.h>
 
 #define TRIGGER_DISTANCE 22 // Arduino pin tied to trigger pin on the ultrasonic sensor. 21
@@ -99,7 +96,7 @@ void lid_operate(int desired_angle)
 
     delay(100);
 
-    // Apply the difference to step
+    
   }
 }
 
@@ -109,10 +106,6 @@ unsigned long interval = 10000UL;
 void loop()
 {
 
-  // delay(50);
-  // Serial.println(sonar[0].ping_cm());
-  // Serial.println(sonar[1].ping_cm());
-
   unsigned long currentMillis = millis();
 
   if (currentMillis - previousMillis > interval)
@@ -120,16 +113,7 @@ void loop()
     updateDatastreamV0();
     previousMillis = currentMillis;
   }
-
-  delay(50);
-
   unsigned int data = sonar[1].ping_cm();
-  // Serial.println("Data 1" + String(data));
-  // unsigned int data_2 = sonar[0].ping_cm();
-  // Serial.println("Data 2" + String(data_2));
-
-  // Serial.println(data);
-  // Serial.println(data_2);
 
   if (data < 30 && data > 0)
   {
@@ -141,6 +125,6 @@ void loop()
   {
     // lid_operate(20);
     myservo.write(20);
-    delay(200);
+    delay(20);
   }
 }
